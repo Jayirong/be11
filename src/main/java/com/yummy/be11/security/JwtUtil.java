@@ -4,13 +4,19 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
+
+import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY = "panconqueso";
+    private final String SECRET = "EstaTieneQueSerUnaClaveMasLargaQueLaQueHabiaPuesto";
+    private final Key SECRET_KEY = new SecretKeySpec(Base64.getDecoder().decode(SECRET), SignatureAlgorithm.HS256.getJcaName());
 
     // Genera el token
     public String generateToken(String username) {
