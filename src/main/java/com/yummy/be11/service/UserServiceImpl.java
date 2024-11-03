@@ -2,9 +2,12 @@ package com.yummy.be11.service;
 
 import com.yummy.be11.model.User;
 import com.yummy.be11.repository.UserRepository;
+import com.yummy.be11.security.JwtUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
@@ -18,6 +21,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     public User registerUser(User user) {
@@ -55,5 +61,16 @@ public class UserServiceImpl implements UserService {
     public void deleteUserById(Long id) {
         userRepository.deleteById(id);
     }
-}
-          
+    
+    @Override
+    public String authenticateAndGenerateToken(String username, String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            return jwtUtil.generateToken(user.getUsername());
+        } else {
+            throw new BadCredentialsException("Invalid credentials");
+        }
+    }
+}      

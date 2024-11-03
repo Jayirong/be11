@@ -10,4 +10,5 @@ public interface UserService {
     List<User> findAllUsers();
     User updateUser(String currentUsername, User updatedUser);
     void deleteUserById(Long id);
+    String authenticateAndGenerateToken(String username, String password);
 }

@@ -8,23 +8,32 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.yummy.be11.security.JwtRequestFilter;
 import com.yummy.be11.service.CustomUserDetailsService;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Configuration
 public class SecurityConfig {
+
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/user/register")) // Permitir acceso público al registro
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/api/user/register"))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/user/register").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Acceso solo a usuarios con rol ADMIN
-                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN") // Acceso a roles USER o ADMIN
+                .requestMatchers("/api/auth/login", "/api/user/register").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(withDefaults())
             .formLogin(withDefaults())
             .logout(withDefaults());
