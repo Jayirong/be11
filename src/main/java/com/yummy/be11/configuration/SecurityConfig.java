@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 import com.yummy.be11.service.CustomUserDetailsService;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -19,16 +18,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**")) // Ignorar CSRF para los endpoints API REST, si es necesario
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/user/register")) // Permitir acceso público al registro
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/user/register").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Solo usuarios con rol ADMIN
-                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN") // Usuarios con rol USER o ADMIN
-                .anyRequest().authenticated() // Cualquier otra solicitud necesita autenticación
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Acceso solo a usuarios con rol ADMIN
+                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN") // Acceso a roles USER o ADMIN
+                .anyRequest().authenticated()
             )
-            .httpBasic(withDefaults()) // Autenticación básica para APIs
-            .formLogin(withDefaults()) // Login basado en formulario
-            .logout(withDefaults()); // Configuración predeterminada para el logout
+            .httpBasic(withDefaults())
+            .formLogin(withDefaults())
+            .logout(withDefaults());
 
         return http.build();
     }
@@ -41,13 +40,13 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService()); // Reemplazar con tu implementación de UserDetailsService
+        authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
     @Bean
     public CustomUserDetailsService userDetailsService() {
-        return new CustomUserDetailsService(); // Reemplazar con tu servicio de usuarios
+        return new CustomUserDetailsService();
     }
 }

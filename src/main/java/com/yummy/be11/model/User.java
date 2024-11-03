@@ -32,5 +32,5 @@ public class User {
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> roles;
+    private Set<Role> roles;
 }
