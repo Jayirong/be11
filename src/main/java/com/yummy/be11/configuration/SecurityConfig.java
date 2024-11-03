@@ -21,6 +21,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**")) // Ignorar CSRF para los endpoints API REST, si es necesario
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/user/register").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN") // Solo usuarios con rol ADMIN
                 .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN") // Usuarios con rol USER o ADMIN
                 .anyRequest().authenticated() // Cualquier otra solicitud necesita autenticación
