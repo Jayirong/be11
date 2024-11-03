@@ -24,4 +24,9 @@ public class UserController {
     public User getUserDetails(Principal principal) {
         return userService.findByUsername(principal.getName());
     }
+
+    @PutMapping("/update")
+    public User updateUser(@RequestBody User user, Principal principal) {
+        return userService.updateUser(principal.getName(), user);
+    }
 }
