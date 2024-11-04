@@ -26,7 +26,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/api/user/register"))
+            .csrf(csrf -> csrf.disable()) // Desactiva CSRF utilizando la nueva API de configuración
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login", "/api/user/register").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-    
+
         return http.build();
     }
 
