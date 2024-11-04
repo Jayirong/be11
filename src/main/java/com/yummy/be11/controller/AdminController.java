@@ -14,6 +14,7 @@ import com.yummy.be11.model.User;
 import com.yummy.be11.service.UserService;
 
 
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -32,9 +33,15 @@ public class AdminController {
         return ResponseEntity.ok("User deleted successfully");
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/user/id/{id}")
     public User getUserById(@PathVariable Long id) {
         return userService.findUserById(id);
     }
+
+    @GetMapping("/user/{uname}")
+    public User getUserByUsername(@PathVariable String uname) {
+        return userService.findByUsername(uname);
+    }
+    
     
 }
