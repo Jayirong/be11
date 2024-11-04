@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yummy.be11.model.User;
 import com.yummy.be11.service.UserService;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -41,6 +44,12 @@ public class AdminController {
     @GetMapping("/user/{uname}")
     public User getUserByUsername(@PathVariable String uname) {
         return userService.findByUsername(uname);
+    }
+
+    @PutMapping("/user/update/{username}")
+    public ResponseEntity<User> updateUserByUsername(@PathVariable String username, @RequestBody User updatedUser) {
+        User user = userService.updateUser(username, updatedUser);
+        return ResponseEntity.ok(user);
     }
     
     
