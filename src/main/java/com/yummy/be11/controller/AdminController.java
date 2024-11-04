@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yummy.be11.model.User;
 import com.yummy.be11.service.UserService;
 
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -25,9 +26,15 @@ public class AdminController {
         return userService.findAllUsers();
     }
 
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("/user/delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         userService.deleteUserById(id);
         return ResponseEntity.ok("User deleted successfully");
     }
+
+    @GetMapping("/user/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return userService.findUserById(id);
+    }
+    
 }
