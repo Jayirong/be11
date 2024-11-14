@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
@@ -26,6 +27,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
