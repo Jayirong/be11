@@ -31,7 +31,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Desactiva CSRF utilizando la nueva API de configuración
             .cors(cors-> cors.configure(http))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/user/register").permitAll()
+                .requestMatchers("/api/auth/login", "/api/user/register", "/api/recipes/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
