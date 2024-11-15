@@ -6,6 +6,7 @@ import com.yummy.be11.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,11 +30,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Desactiva CSRF utilizando la nueva API de configuración
-            .cors(cors-> cors.configure(http))
+            // .cors(cors-> cors.configure(http))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/user/register", "/api/recipes/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/user/register").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                //permisos para endpoints de recipes
+                .requestMatchers(HttpMethod.GET, "/api/recipes", "/api/recipes/{id}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/recipes/user/{id}").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/recipes/{id}").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/recipes/{id}").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
@@ -53,7 +60,6 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

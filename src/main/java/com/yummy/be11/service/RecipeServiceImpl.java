@@ -25,22 +25,18 @@ public class RecipeServiceImpl implements RecipeService {
     private UserRepository userRepository;
 
     @Override
-    public Recipe createRecipe(String userUname, Recipe recipe) {
-        logger.info("createRecipe llamado con userName: {}", userUname);
+    public Recipe createRecipe(Long userId, Recipe recipe) {
+        logger.info("createRecipe llamado con userName: {}", userId);
 
         //obtencion de user
-        Optional<User> userOptional = userRepository.findByUsername(userUname);
+        Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
-            logger.error("Usuario no encontrado con username: {}", userUname);
+            logger.error("Usuario no encontrado con username: {}", userId);
             throw new RuntimeException("Usuario no encontrado :P");
         }
-        User user = userOptional.get();
-        recipe.setUser(user);
 
-        Recipe savedRecipe = recipeRepository.save(recipe);
-        logger.info("Receta wardada exitosamente con ID: {}", savedRecipe.getId_recipe());
-
-        return savedRecipe;
+        recipe.setIdUser(userId);
+        return recipeRepository.save(recipe);
     }
 
     @Override
@@ -53,4 +49,28 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RuntimeException("Receta no pillada >:P"));
     }
+
+    @Override
+    public Recipe updateRecipe(Long recipeId, Recipe updatedRecipe) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+            .orElseThrow(() -> new RuntimeException("Receta no encontrada"));
+
+        recipe.setNombre(updatedRecipe.getNombre());
+        recipe.setDescripcion(updatedRecipe.getDescripcion());
+        recipe.setTipo_cocina(updatedRecipe.getTipo_cocina());
+        recipe.setPais_origen(updatedRecipe.getPais_origen());
+        recipe.setDificultad(updatedRecipe.getDificultad());
+        recipe.setImg_ruta(updatedRecipe.getImg_ruta());
+
+        return recipeRepository.save(recipe);
+    }
+
+    @Override
+    public void deleteRecipeById(Long recipeId) {
+        if (!recipeRepository.existsById(recipeId)) {
+            throw new RuntimeException("Receta no encontrada");
+        }
+        recipeRepository.deleteById(recipeId);
+    }
+    
 }

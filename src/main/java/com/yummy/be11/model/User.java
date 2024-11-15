@@ -52,9 +52,6 @@ public class User {
 
     //Rel
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Recipe> recipes;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RecipeComment> comments;
 
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
