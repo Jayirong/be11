@@ -33,7 +33,7 @@ public class SecurityConfig {
             // .cors(cors-> cors.configure(http))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/user/register").permitAll()
+                .requestMatchers("/api/auth/login", "/api/user/register", "/h2-console/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
                 //permisos para endpoints de recipes
@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/recipes/{id}").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
+            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())) // Permitir frames desde el mismo origen para H2
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

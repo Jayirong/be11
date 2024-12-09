@@ -1,9 +1,12 @@
 package com.yummy.be11.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -13,24 +16,30 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "EstaEsUnaClaveMuyLargaYSeguraParaJWTTokenDePrueba"; // Clave larga
-    private final Key SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
+    private final Key secretKey;
 
-    // Genera el token
+    public JwtUtil(@Value("${jwt.secret:EstaEsUnaClaveMuyLargaYSeguraParaJWTTokenDePrueba}") String secret) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 horas
-                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     // Validar el token
     public boolean validateToken(String token, String username) {
+    try {
         final String tokenUsername = extractUsername(token);
         return (tokenUsername.equals(username) && !isTokenExpired(token));
+    } catch (ExpiredJwtException e) {
+        return false; // Si el token ha expirado, devolvemos false
     }
+}
 
     // Extrae el nombre de usuario del token
     public String extractUsername(String token) {
@@ -44,7 +53,7 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
     }
 
     private boolean isTokenExpired(String token) {
