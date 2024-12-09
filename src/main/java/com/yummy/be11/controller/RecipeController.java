@@ -1,6 +1,7 @@
 package com.yummy.be11.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,9 +30,16 @@ public class RecipeController {
     private RecipeService recipeService;
 
     @PostMapping("/user/{userId}")
-    public ResponseEntity<Recipe> addRecipe(@PathVariable Long userId, @RequestBody Recipe recipe) {
-        Recipe createdRecipe = recipeService.createRecipe(userId, recipe);
-        return new ResponseEntity<>(createdRecipe, HttpStatus.CREATED);
+    public ResponseEntity<?> addRecipe(@PathVariable Long userId, @RequestBody Recipe recipe) {
+        try {
+            if (recipe.getNombre() == null || recipe.getDescripcion() == null) {
+                return new ResponseEntity<>(Map.of("error", "Datos inválidos"), HttpStatus.BAD_REQUEST);
+            }
+            Recipe createdRecipe = recipeService.createRecipe(userId, recipe);
+            return new ResponseEntity<>(createdRecipe, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }    
     
     @GetMapping()
@@ -41,21 +49,33 @@ public class RecipeController {
     }
 
     @GetMapping("/{recipeId}")
-    public ResponseEntity<Recipe> getREcipeById(@PathVariable Long recipeId) {
-        Recipe recipe = recipeService.getRecipeById(recipeId);
-        return new ResponseEntity<>(recipe, HttpStatus.OK);
+    public ResponseEntity<?> getRecipeById(@PathVariable Long recipeId) {
+        try {
+            Recipe recipe = recipeService.getRecipeById(recipeId);
+            return new ResponseEntity<>(recipe, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/{recipeId}")
-    public ResponseEntity<Recipe> updateEntity(@PathVariable Long recipeId, @RequestBody Recipe updatedRecipe) {
-        Recipe recipe = recipeService.updateRecipe(recipeId, updatedRecipe);
-        return new ResponseEntity<>(recipe, HttpStatus.OK);
+    public ResponseEntity<?> updateEntity(@PathVariable Long recipeId, @RequestBody Recipe updatedRecipe) {
+        try {
+            Recipe recipe = recipeService.updateRecipe(recipeId, updatedRecipe);
+            return new ResponseEntity<>(recipe, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+        }
     }
     
     @DeleteMapping("/{recipeId}")
-    public ResponseEntity<String> deleteRecipe(@PathVariable Long recipeId) {
-        recipeService.deleteRecipeById(recipeId);
-        return new ResponseEntity<>("Recipe deleted successfully", HttpStatus.OK);
+    public ResponseEntity<?> deleteRecipe(@PathVariable Long recipeId) {
+        try {
+            recipeService.deleteRecipeById(recipeId);
+            return new ResponseEntity<>("Recipe deleted successfully", HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+        }
     }
 
 }
