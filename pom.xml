@@ -28,6 +28,9 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<sonar.projectKey>yummybe</sonar.projectKey>
+    	<sonar.host.url>http://localhost:9000</sonar.host.url>
+    	<sonar.login>sqp_6f0aa876ae952428d78035626a72248e49383e99</sonar.login>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -182,6 +185,11 @@
 				</execution>
 			</executions>
 		</plugin>
+		<plugin>
+            <groupId>org.sonarsource.scanner.maven</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <version>3.9.1.2184</version>
+        </plugin>
 		</plugins>
 	</build>
 
