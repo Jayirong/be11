@@ -1,4 +1,4 @@
-package com.yummy.be11.testController;
+package com.yummy.be11.WebMvcTest;
 
 import com.yummy.be11.controller.UserController;
 import com.yummy.be11.model.User;
@@ -34,6 +34,14 @@ class UserControllerTest {
 
     @MockBean
     private CustomUserDetailsService customUserDetailsService; // Simulamos CustomUserDetailsService
+
+    private final String validUserRegistrationJson = """
+        {
+            "username": "newuser",
+            "password": "securepassword",
+            "email": "newuser@example.com"
+        }
+    """;
 
     @Test
     void registerUser_ShouldCreateUser_WhenDataIsValid() throws Exception {
@@ -126,6 +134,31 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"updateduser\", \"password\":\"newpassword\"}"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+        void updateUser_ShouldReturnBadRequest_WhenDataIsInvalid() throws Exception {
+        // Arrange
+        Mockito.when(userService.updateUser(Mockito.anyString(), Mockito.any(User.class)))
+                .thenThrow(new IllegalArgumentException("Invalid data"));
+
+        // Act & Assert
+        mockMvc.perform(put("/api/user/update")
+                        .principal(() -> "authenticatedUser") // Simula usuario autenticado
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"\"}")) // Datos inválidos
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Invalid data"));
+        }
+
+
+    @Test
+    void shouldAllowAnonymousAccessToRegister() throws Exception {
+        // Realiza una solicitud POST al endpoint de registro
+        mockMvc.perform(post("/api/user/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validUserRegistrationJson))
+                .andExpect(status().isOk()); // O `isCreated()` dependiendo de la implementación
     }
 
 }

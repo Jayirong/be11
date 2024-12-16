@@ -1,4 +1,4 @@
-package com.yummy.be11.testController;
+package com.yummy.be11.WebMvcTest;
 
 import com.yummy.be11.controller.AuthController;
 import com.yummy.be11.security.JwtUtil;

@@ -1,4 +1,4 @@
-package com.yummy.be11.testController;
+package com.yummy.be11.WebMvcTest;
 
 import java.util.Arrays;
 import java.util.List;

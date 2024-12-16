@@ -1,12 +1,9 @@
-package com.yummy.be11.testServices;
+package com.yummy.be11.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 import java.util.Set;
@@ -27,7 +24,7 @@ import com.yummy.be11.security.JwtUtil;
 import com.yummy.be11.service.UserServiceImpl;
 
 class UserServiceImplTest {
-    
+
     @Mock
     private UserRepository userRepository;
     
@@ -73,7 +70,6 @@ class UserServiceImplTest {
 
     @Test
     void authenticateAndGenerateToken_ShouldGenerateTokenForValidCredentials() {
-        // Arrange
         String username = "testuser";
         String password = "password123";
         String encodedPassword = "encodedPassword123";
@@ -87,19 +83,16 @@ class UserServiceImplTest {
         when(passwordEncoder.matches(password, encodedPassword)).thenReturn(true);
         when(jwtUtil.generateToken(username)).thenReturn(generatedToken);
 
-        // Act
         String token = userService.authenticateAndGenerateToken(username, password);
 
-        // Assert
         assertEquals(generatedToken, token, "El token generado debe coincidir con el token simulado.");
         verify(userRepository, times(1)).findByUsername(username);
         verify(passwordEncoder, times(1)).matches(password, encodedPassword);
         verify(jwtUtil, times(1)).generateToken(username);
     }
 
-     @Test
+    @Test
     void authenticateAndGenerateToken_ShouldThrowExceptionForInvalidCredentials() {
-        // Arrange
         String username = "testuser";
         String password = "wrongPassword";
         String encodedPassword = "encodedPassword123";
@@ -111,7 +104,6 @@ class UserServiceImplTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(password, encodedPassword)).thenReturn(false);
 
-        // Act & Assert
         assertThrows(BadCredentialsException.class, () -> {
             userService.authenticateAndGenerateToken(username, password);
         });
@@ -121,15 +113,13 @@ class UserServiceImplTest {
         verify(jwtUtil, never()).generateToken(username);
     }
 
-     @Test
+    @Test
     void authenticateAndGenerateToken_ShouldThrowExceptionWhenUserNotFound() {
-        // Arrange
         String username = "nonexistentuser";
         String password = "password123";
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(UsernameNotFoundException.class, () -> {
             userService.authenticateAndGenerateToken(username, password);
         });
@@ -141,71 +131,59 @@ class UserServiceImplTest {
 
     @Test
     void findByUsername_ShouldReturnUserWhenUserExists() {
-        // Arrange
         String username = "testuser";
         User user = new User();
         user.setUsername(username);
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
-        // Act
         User result = userService.findByUsername(username);
 
-        // Assert
         assertEquals(user, result, "El usuario retornado debería coincidir con el usuario esperado");
         verify(userRepository, times(1)).findByUsername(username);
     }
 
     @Test
     void findByUsername_ShouldReturnNullWhenUserDoesNotExist() {
-        // Arrange
         String username = "nonexistentuser";
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
-        // Act
         User result = userService.findByUsername(username);
 
-        // Assert
         assertEquals(null, result, "El resultado debería ser null cuando el usuario no existe");
         verify(userRepository, times(1)).findByUsername(username);
     }
 
     @Test
     void findUserById_ShouldReturnUserWhenUserExists() {
-        // Arrange
         Long userId = 1L;
         User user = new User();
         user.setId_user(userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        // Act
         User result = userService.findUserById(userId);
 
-        // Assert
         assertEquals(user, result, "El usuario retornado debería coincidir con el usuario esperado");
         verify(userRepository, times(1)).findById(userId);
     }
 
     @Test
     void findUserById_ShouldThrowExceptionWhenUserDoesNotExist() {
-        // Arrange
         Long userId = 1L;
-    
+
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-    
-        // Act & Assert
+
         assertThrows(UsernameNotFoundException.class, () -> {
             userService.findUserById(userId);
         });
-    
+
         verify(userRepository, times(1)).findById(userId);
     }
- 
+
     @Test
     void updateUser_ShouldUpdateAllowedFields() {
-        // Arrange
         String currentUsername = "testuser";
         User existingUser = new User();
         existingUser.setUsername(currentUsername);
@@ -221,10 +199,8 @@ class UserServiceImplTest {
         when(passwordEncoder.encode(updatedUser.getPassword())).thenReturn("encodedpassword");
         when(userRepository.save(existingUser)).thenReturn(existingUser);
 
-        // Act
         User result = userService.updateUser(currentUsername, updatedUser);
 
-        // Assert
         assertEquals("newusername", result.getUsername(), "El nombre de usuario debería actualizarse");
         assertEquals("encodedpassword", result.getPassword(), "La contraseña debería ser encriptada y actualizada");
         assertEquals(Set.of(Role.ADMIN), result.getRoles(), "Los roles deberían actualizarse");
@@ -235,13 +211,11 @@ class UserServiceImplTest {
 
     @Test
     void updateUser_ShouldThrowExceptionWhenUserNotFound() {
-        // Arrange
         String currentUsername = "nonexistentuser";
         User updatedUser = new User();
 
         when(userRepository.findByUsername(currentUsername)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(UsernameNotFoundException.class, () -> {
             userService.updateUser(currentUsername, updatedUser);
         });
